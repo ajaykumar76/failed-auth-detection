@@ -131,3 +131,18 @@ def detect_repeated_failures(events):
             alerted_username.add(username)
 
     return alerts
+if __name__ == "__main__":
+    events, invalid_count = parse_logs()
+    alerts = detect_repeated_failures(events)
+
+    print(f"Valid events: {len(events)}")
+    print(f"Invalid records skipped: {invalid_count}")
+    print(f"Alerts detected: {len(alerts)}")
+
+    for alert in alerts:
+        print("-" * 40)
+        print(f"Rule: {alert['rule']}")
+        print(f"Username: {alert['username']}")
+        print(f"Source IP: {alert['source_ip']}")
+        print(f"Timestamp: {alert['timestamp']}")
+        print(f"Failure count: {alert['failure_count']}")
