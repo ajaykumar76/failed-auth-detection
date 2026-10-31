@@ -1,0 +1,7 @@
+scenario,expected_suspicious,detected,outcome
+rapid_repeated_failures,True,True,TP
+slow_repeated_failures,True,False,FN
+distributed_failures_same_account,True,True,TP
+four_benign_failures,False,False,TN
+successful_logins_only,False,False,TN
+failures_split_between_ips,False,False,TN

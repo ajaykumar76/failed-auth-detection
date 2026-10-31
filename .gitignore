@@ -1,0 +1,10 @@
+﻿__pycache__/
+*.py[cod]
+.venv/
+venv/
+results/*backup*
+cleanup_section10.py
+format_main_results_table.py
+format_threshold_table.py
+inspect_section9.py
+preview_format_cleanup.py

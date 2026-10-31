@@ -1,0 +1,4 @@
+scenario,expected_suspicious,detected,outcome
+repeated_failures,True,True,TP
+four_failures,False,False,TN
+normal_successes,False,False,TN

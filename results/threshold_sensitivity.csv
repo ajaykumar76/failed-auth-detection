@@ -1,0 +1,9 @@
+threshold,detector,TP,FP,TN,FN,precision,recall,f1_score,false_positive_rate
+3,baseline,3,2,2,2,0.6,0.6,0.6,0.5
+3,enhanced,4,3,1,1,0.5714,0.8,0.6667,0.75
+4,baseline,3,2,2,2,0.6,0.6,0.6,0.5
+4,enhanced,4,3,1,1,0.5714,0.8,0.6667,0.75
+5,baseline,3,0,4,2,1.0,0.6,0.75,0.0
+5,enhanced,4,0,4,1,1.0,0.8,0.8889,0.0
+6,baseline,0,0,4,5,0,0.0,0,0.0
+6,enhanced,0,0,4,5,0,0.0,0,0.0

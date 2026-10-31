@@ -1,0 +1,4 @@
+threshold,window_minutes,TP,FP,TN,FN,precision,recall,f1_score,false_positive_rate
+3,5,15,8,7,0,0.6522,1.0,0.7895,0.5333
+5,5,15,0,15,0,1.0,1.0,1.0,0.0
+10,5,0,0,15,15,0.0,0.0,0.0,0.0

@@ -1,0 +1,7 @@
+scenario,expected_suspicious,detected,outcome,alert_rules
+six_failures_over_long_period,True,False,FN,
+one_ip_targets_five_accounts,True,True,TP,Rule 1
+multiple_ips_target_multiple_accounts,True,False,FN,
+four_failures_then_success,False,False,TN,
+fifth_failure_outside_window,False,False,TN,
+successful_logins_by_multiple_users,False,False,TN,

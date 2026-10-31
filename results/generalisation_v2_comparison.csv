@@ -1,0 +1,10 @@
+scenario,expected_suspicious,baseline_detected,baseline_outcome,enhanced_detected,enhanced_outcome
+rapid_repeated_failures,True,True,TP,True,TP
+slow_repeated_failures,True,False,FN,False,FN
+distributed_failures_same_account,True,False,FN,True,TP
+one_ip_multiple_accounts,True,True,TP,True,TP
+five_failures_at_window_boundary,True,True,TP,True,TP
+four_benign_failures,False,False,TN,False,TN
+successful_logins_only,False,False,TN,False,TN
+failures_split_between_ips,False,False,TN,False,TN
+failures_mixed_with_successes,False,False,TN,False,TN
