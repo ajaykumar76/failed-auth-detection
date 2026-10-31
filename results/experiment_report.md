@@ -2,12 +2,12 @@
 
 1. Objective
 
-This experiment compares a baseline rule-based detector with an enhanced detector for identifying suspicious failed-authentication patterns in synthetic authentication logs.
+This study investigates whether adding a multi-source-IP detection rule improves the identification of repeated failed-authentication patterns compared with a baseline rule that detects repeated failures from a single source IP.
 
-The baseline detects repeated failures from a single source IP address. The enhanced detector adds a rule for repeated failures against the same username from multiple source IP addresses.
+**Research question:** To what extent does the enhanced detector improve precision, recall, and F1 score compared with the baseline detector on a manually designed synthetic dataset?
 
+The baseline detects repeated failures from a single source IP address. The enhanced detector retains this rule and adds a rule for repeated failures against the same username from multiple source IP addresses.The baseline detects repeated failures from a single source IP address. The enhanced detector retains this rule and adds a rule for repeated failures against the same username from multiple source IP addresses.
 2. Detection Rules
-
 Baseline detector
 
 Triggers when at least five failed authentication attempts from one source IP occur within a rolling five-minute window.
@@ -24,9 +24,9 @@ The five-minute boundary is inclusive.
 
 Nine manually designed synthetic scenarios were evaluated. The scenarios represent suspicious and benign authentication patterns, including rapid repeated failures, slower failures, distributed attempts against one account, successful logins, and activity at the detection-window boundary.
 
-The baseline and enhanced detectors were evaluated against manually assigned expected outcomes.
+The baseline and enhanced detectors were evaluated against manually assigned expected outcomes. Both detectors were assessed using the same scenario set to enable a direct comparison. The expected outcomes were defined by the scenario design rather than independently labelled real-world data.
 
-Metrics were calculated using true positives (TP), false positives (FP), true negatives (TN), and false negatives (FN).
+Results were classified as true positives (TP), false positives (FP), true negatives (TN), and false negatives (FN). Precision, recall, F1 score, and false-positive rate were calculated from these counts. Because the evaluation contains only nine synthetic scenarios, the metrics are descriptive of this test set and should not be interpreted as estimates of real-world performance.
 
 4. Results
 
