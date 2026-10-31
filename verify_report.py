@@ -1,4 +1,4 @@
-﻿from pathlib import Path
+from pathlib import Path
 import csv
 import re
 import subprocess
@@ -44,6 +44,61 @@ with Path("results/extended_scenarios.csv").open(
     extended_rows = list(csv.DictReader(f))
 print("Extended scenario CSV rows:", len(extended_rows), "(expected 6)")
 
+print("\n=== GENERALISATION V2 CHECKS ===")
+with Path("results/generalisation_v2_metrics.csv").open(
+    newline="", encoding="utf-8-sig"
+) as f:
+    generalisation_metrics = list(csv.DictReader(f))
+
+with Path("results/generalisation_v2_comparison.csv").open(
+    newline="", encoding="utf-8-sig"
+) as f:
+    comparison_rows = list(csv.DictReader(f))
+
+with Path("results/generalisation_v2_scenarios.csv").open(
+    newline="", encoding="utf-8-sig"
+) as f:
+    scenario_rows = list(csv.DictReader(f))
+
+metric_by_detector = {row["detector"]: row for row in generalisation_metrics}
+expected_metrics = {
+    "baseline": {"TP": "3", "FP": "0", "TN": "4", "FN": "2",
+                 "precision": "1.0", "recall": "0.6",
+                 "f1_score": "0.75", "false_positive_rate": "0.0"},
+    "enhanced": {"TP": "4", "FP": "0", "TN": "4", "FN": "1",
+                 "precision": "1.0", "recall": "0.8",
+                 "f1_score": "0.8889", "false_positive_rate": "0.0"},
+}
+metrics_match = (
+    set(metric_by_detector) == set(expected_metrics)
+    and all(
+        all(metric_by_detector[name].get(key) == value
+            for key, value in expected.items())
+        for name, expected in expected_metrics.items()
+    )
+)
+
+comparison_by_scenario = {row["scenario"]: row for row in comparison_rows}
+scenario_by_name = {row["scenario"]: row for row in scenario_rows}
+scenario_names_match = (
+    len(comparison_rows) == 9
+    and len(scenario_rows) == 9
+    and set(comparison_by_scenario) == set(scenario_by_name)
+)
+baseline_outcomes_match = scenario_names_match and all(
+    comparison_by_scenario[name]["baseline_detected"]
+        == scenario_by_name[name]["baseline_detected"]
+    and comparison_by_scenario[name]["baseline_outcome"]
+        == scenario_by_name[name]["baseline_outcome"]
+    for name in scenario_by_name
+)
+
+print("Metrics match expected results:", metrics_match)
+print("Comparison CSV has 9 scenarios:", len(comparison_rows) == 9)
+print("Scenario CSV has 9 scenarios:", len(scenario_rows) == 9)
+print("Scenario names agree across CSVs:", scenario_names_match)
+print("Baseline outcomes agree across CSVs:", baseline_outcomes_match)
+
 print("\n=== UNIT TESTS ===")
 result = subprocess.run(
     [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-v"],
@@ -58,6 +113,11 @@ checks = [
     supplementary_table,
     len(threshold_rows) == 8,
     len(extended_rows) == 6,
+    metrics_match,
+    len(comparison_rows) == 9,
+    len(scenario_rows) == 9,
+    scenario_names_match,
+    baseline_outcomes_match,
     result.returncode == 0,
 ]
 print("\nOVERALL:", "PASS" if all(checks) else "CHECK FAILED")
