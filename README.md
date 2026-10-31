@@ -60,7 +60,7 @@ Verify the research report:
 
     python verify_report.py
 
-The `main.py` file currently defines the parsing and detection functions but does not provide a standalone command-line entry point. Use the experiment scripts above to run the evaluations.
+Run the detector directly with `python main.py`. It reads the synthetic authentication log, reports valid and skipped records, and prints any detected alerts. The experiment scripts above run the separate evaluations.
 
 ## Main Evaluation Results
 
