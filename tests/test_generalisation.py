@@ -2,7 +2,7 @@
 import csv
 import sys
 from collections import defaultdict, deque
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
@@ -17,7 +17,7 @@ WINDOW_MINUTES = 5
 
 def make_events(attempts):
     """Build events from (minute, username, source_ip, status)."""
-    start = datetime(2026, 10, 31, 9, 0, 0)
+    start = datetime(2026, 10, 31, 9, 0, 0, tzinfo=timezone.utc)
     events = [
         {
             "timestamp": start + timedelta(minutes=minute),

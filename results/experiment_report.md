@@ -1,4 +1,4 @@
-﻿Expanded Synthetic Evaluation Report
+Expanded Synthetic Evaluation Report
 
 1. Objective
 
@@ -6,7 +6,7 @@ This study investigates whether adding a multi-source-IP detection rule improves
 
 **Research question:** To what extent does the enhanced detector improve precision, recall, and F1 score compared with the baseline detector on a manually designed synthetic dataset?
 
-The baseline detects repeated failures from a single source IP address. The enhanced detector retains this rule and adds a rule for repeated failures against the same username from multiple source IP addresses.The baseline detects repeated failures from a single source IP address. The enhanced detector retains this rule and adds a rule for repeated failures against the same username from multiple source IP addresses.
+The baseline detects repeated failures from a single source IP address. The enhanced detector retains this rule and adds a rule for repeated failures against the same username from multiple source IP addresses.
 2. Detection Rules
 Baseline detector
 
@@ -187,8 +187,4 @@ python tests/test\_extended\_scenarios.py
 
 The output is saved to results/extended\_scenarios.csv.
 
-The unit tests were also executed using python -m unittest discover -s tests -v; all 12 tests passed in the reported run.
-
-
-
-
+The unit tests were also executed using python -m unittest discover -s tests -v; all 17 tests passed in the reported run.

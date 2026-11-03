@@ -1,7 +1,7 @@
 
 import csv
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
@@ -13,7 +13,7 @@ RESULTS_DIR = PROJECT_DIR / "results"
 
 
 def make_events(attempts):
-    start = datetime(2026, 10, 31, 9, 0, 0)
+    start = datetime(2026, 10, 31, 9, 0, 0, tzinfo=timezone.utc)
     return sorted(
         [
             {

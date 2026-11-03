@@ -3,7 +3,22 @@ import csv
 import re
 import subprocess
 import sys
+print("=== EXPERIMENT EXECUTION ===")
+experiment_scripts = [
+    "tests/test_generalisation.py",
+    "tests/test_extended_scenarios.py",
+    "tests/test_threshold_sensitivity.py",
+]
 
+experiment_results = []
+for script in experiment_scripts:
+    print(f"\nRunning {script}...")
+    experiment = subprocess.run(
+        [sys.executable, script],
+        text=True
+    )
+    experiment_results.append(experiment.returncode == 0)
+    print(f"{script} passed:", experiment.returncode == 0)
 report_path = Path("results/experiment_report.md")
 text = report_path.read_text(encoding="utf-8-sig")
 lines = text.splitlines()
@@ -98,7 +113,6 @@ print("Comparison CSV has 9 scenarios:", len(comparison_rows) == 9)
 print("Scenario CSV has 9 scenarios:", len(scenario_rows) == 9)
 print("Scenario names agree across CSVs:", scenario_names_match)
 print("Baseline outcomes agree across CSVs:", baseline_outcomes_match)
-
 print("\n=== UNIT TESTS ===")
 result = subprocess.run(
     [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-v"],
@@ -107,6 +121,7 @@ result = subprocess.run(
 print("Unit tests passed:", result.returncode == 0)
 
 checks = [
+    all(experiment_results),
     numbers == expected,
     main_table,
     threshold_table,
@@ -121,3 +136,4 @@ checks = [
     result.returncode == 0,
 ]
 print("\nOVERALL:", "PASS" if all(checks) else "CHECK FAILED")
+sys.exit(0 if all(checks) else 1)
