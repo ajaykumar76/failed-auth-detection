@@ -91,6 +91,75 @@ class ParserTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     main.parse_logs()
 
+    def test_timezone_offset_is_normalised_to_utc(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "logs.csv"
+            self.write_csv(path, [{
+                "timestamp": "2026-10-31T10:00:00+01:00",
+                "username": "user01",
+                "source_ip": "192.0.2.10",
+                "status": "failure",
+            }])
+
+            with patch.object(main, "LOG_FILE", path):
+                events, invalid = main.parse_logs()
+
+            self.assertEqual(invalid, 0)
+            self.assertEqual(
+                events[0]["timestamp"].isoformat(),
+                "2026-10-31T09:00:00+00:00",
+            )
+
+    def test_naive_timestamp_is_interpreted_as_utc(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "logs.csv"
+            self.write_csv(path, [{
+                "timestamp": "2026-10-31 09:00:00",
+                "username": "user01",
+                "source_ip": "192.0.2.10",
+                "status": "failure",
+            }])
+
+            with patch.object(main, "LOG_FILE", path):
+                events, invalid = main.parse_logs()
+
+            self.assertEqual(invalid, 0)
+            self.assertEqual(
+                events[0]["timestamp"].isoformat(),
+                "2026-10-31T09:00:00+00:00",
+            )
+
+    def test_mixed_timezone_timestamps_are_sorted(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "logs.csv"
+            self.write_csv(path, [
+                {
+                    "timestamp": "2026-10-31 10:00:00",
+                    "username": "user01",
+                    "source_ip": "192.0.2.10",
+                    "status": "failure",
+                },
+                {
+                    "timestamp": "2026-10-31T08:30:00+00:00",
+                    "username": "user02",
+                    "source_ip": "192.0.2.11",
+                    "status": "failure",
+                },
+            ])
+
+            with patch.object(main, "LOG_FILE", path):
+                events, invalid = main.parse_logs()
+
+            self.assertEqual(invalid, 0)
+            self.assertEqual(len(events), 2)
+            self.assertEqual(
+                [event["timestamp"].isoformat() for event in events],
+                [
+                    "2026-10-31T08:30:00+00:00",
+                    "2026-10-31T10:00:00+00:00",
+                ],
+            )
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -1,6 +1,7 @@
+
 import csv
 from collections import deque, defaultdict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 PROJECT_DIR = Path(__file__).resolve().parent
@@ -11,7 +12,7 @@ WINDOW_MINUTES = 5
 
 
 def parse_logs():
-    """Read and validate authentication log records."""
+    """Read, validate and normalise authentication log timestamps to UTC."""
     valid_events = []
     invalid_count = 0
 
@@ -25,6 +26,13 @@ def parse_logs():
         for row in reader:
             try:
                 timestamp = datetime.fromisoformat(row["timestamp"])
+
+                # Assume timestamps without an explicit timezone are UTC.
+                if timestamp.tzinfo is None:
+                    timestamp = timestamp.replace(tzinfo=timezone.utc)
+                else:
+                    timestamp = timestamp.astimezone(timezone.utc)
+
                 username = row["username"].strip()
                 source_ip = row["source_ip"].strip()
                 status = row["status"].strip().lower()
@@ -131,6 +139,8 @@ def detect_repeated_failures(events):
             alerted_username.add(username)
 
     return alerts
+
+
 if __name__ == "__main__":
     events, invalid_count = parse_logs()
     alerts = detect_repeated_failures(events)
