@@ -58,7 +58,24 @@ def parse_logs():
 
 
 def detect_repeated_failures(events):
-    """Detect repeated failures by source IP or across IPs for one username."""
+    """Detect repeated failures using timezone-aware UTC timestamps."""
+    normalised_events = []
+
+    for event in events:
+        timestamp = event.get("timestamp")
+
+        if not isinstance(timestamp, datetime):
+            raise ValueError("Event timestamp must be a datetime object.")
+
+        if timestamp.tzinfo is None or timestamp.utcoffset() is None:
+            raise ValueError(
+                "Event timestamp must be timezone-aware."
+            )
+
+        normalised_event = dict(event)
+        normalised_event["timestamp"] = timestamp.astimezone(timezone.utc)
+        normalised_events.append(normalised_event)
+
     failures_by_ip = defaultdict(deque)
     failures_by_username = defaultdict(deque)
     alerts = []
@@ -67,7 +84,10 @@ def detect_repeated_failures(events):
     alerted_ip = set()
     alerted_username = set()
 
-    for event in sorted(events, key=lambda event: event["timestamp"]):
+    for event in sorted(
+        normalised_events,
+        key=lambda event: event["timestamp"],
+    ):
         if event["status"] != "failure":
             continue
 
@@ -139,20 +159,3 @@ def detect_repeated_failures(events):
             alerted_username.add(username)
 
     return alerts
-
-
-if __name__ == "__main__":
-    events, invalid_count = parse_logs()
-    alerts = detect_repeated_failures(events)
-
-    print(f"Valid events: {len(events)}")
-    print(f"Invalid records skipped: {invalid_count}")
-    print(f"Alerts detected: {len(alerts)}")
-
-    for alert in alerts:
-        print("-" * 40)
-        print(f"Rule: {alert['rule']}")
-        print(f"Username: {alert['username']}")
-        print(f"Source IP: {alert['source_ip']}")
-        print(f"Timestamp: {alert['timestamp']}")
-        print(f"Failure count: {alert['failure_count']}")

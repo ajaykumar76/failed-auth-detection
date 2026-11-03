@@ -1,7 +1,7 @@
 
 import sys
 import unittest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
@@ -13,7 +13,7 @@ from main import detect_repeated_failures
 class DetectionTests(unittest.TestCase):
 
     def make_events(self, statuses_and_minutes):
-        start = datetime(2026, 10, 31, 9, 0, 0)
+        start = datetime(2026, 10, 31, 9, 0, 0, tzinfo=timezone.utc)
         events = []
 
         for status, minute in statuses_and_minutes:
@@ -56,7 +56,7 @@ class DetectionTests(unittest.TestCase):
         self.assertEqual(len(detect_repeated_failures(events)), 0)
 
     def test_failures_for_same_username_across_ips_trigger_alert(self):
-        start = datetime(2026, 1, 1, 12, 0, 0)
+        start = datetime(2026, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
         events = []
 
         for i in range(5):
@@ -71,7 +71,7 @@ class DetectionTests(unittest.TestCase):
         self.assertTrue(any("Rule 2" in alert["rule"] for alert in alerts))
 
     def test_failure_exactly_five_minutes_apart_is_included(self):
-        start = datetime(2026, 1, 1, 12, 0, 0)
+        start = datetime(2026, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
         events = []
 
         for minute in [0, 1, 2, 3, 5]:
@@ -86,7 +86,7 @@ class DetectionTests(unittest.TestCase):
         self.assertTrue(any("Rule 1" in alert["rule"] for alert in alerts))
 
     def test_rule_two_emits_only_one_alert_per_username(self):
-        start = datetime(2026, 1, 1, 12, 0, 0)
+        start = datetime(2026, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
         attempts = [
             (0, "192.0.2.80"),
             (1, "192.0.2.81"),
@@ -113,7 +113,7 @@ class DetectionTests(unittest.TestCase):
         self.assertEqual(len(rule_two_alerts), 1)
 
     def test_unsorted_events_do_not_create_false_alert(self):
-        start = datetime(2026, 1, 1, 12, 0, 0)
+        start = datetime(2026, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
 
         events = []
         for minute in [10, 0, 1, 2, 3]:
@@ -131,6 +131,51 @@ class DetectionTests(unittest.TestCase):
             "Unsorted events must not create a false Rule 1 alert.",
         )
 
+
+    def test_naive_timestamp_is_rejected(self):
+        events = [{
+            "timestamp": datetime(2026, 1, 1, 12, 0, 0),
+            "username": "alice",
+            "source_ip": "192.0.2.10",
+            "status": "failure",
+        }]
+
+        with self.assertRaisesRegex(ValueError, "timezone-aware"):
+            detect_repeated_failures(events)
+
+    def test_mixed_timezone_offsets_are_normalised(self):
+        start = datetime(2026, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
+        plus_one = timezone(timedelta(hours=1))
+        events = []
+
+        for minute in range(5):
+            timestamp = start + timedelta(minutes=minute)
+
+            if minute % 2 == 0:
+                timestamp = timestamp.astimezone(plus_one)
+
+            events.append({
+                "timestamp": timestamp,
+                "username": "alice",
+                "source_ip": "192.0.2.10",
+                "status": "failure",
+            })
+
+        alerts = detect_repeated_failures(events)
+
+        rule_one_alerts = [
+            alert for alert in alerts if "Rule 1" in alert["rule"]
+        ]
+
+        self.assertEqual(len(rule_one_alerts), 1)
+        self.assertEqual(
+            rule_one_alerts[0]["timestamp"].utcoffset(),
+            timedelta(0),
+        )
+        self.assertEqual(
+            events[0]["timestamp"].utcoffset(),
+            timedelta(hours=1),
+        )
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
