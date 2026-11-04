@@ -1,0 +1,7 @@
+scenario,expected_suspicious,original_detected,original_outcome,experimental_detected,experimental_outcome,combined_detected,combined_outcome,experimental_rules
+six_failures_over_long_period,True,False,FN,True,TP,True,TP,Rule 4: Long-window repeated failures
+one_ip_targets_five_accounts,True,True,TP,False,FN,True,TP,
+multiple_ips_target_multiple_accounts,True,False,FN,True,TP,True,TP,Rule 3: Distributed multi-account failures
+four_failures_then_success,False,False,TN,False,TN,False,TN,
+fifth_failure_outside_window,False,False,TN,False,TN,False,TN,
+successful_logins_by_multiple_users,False,False,TN,False,TN,False,TN,
